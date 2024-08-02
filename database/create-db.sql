@@ -1,0 +1,11 @@
+CREATE DATABASE ambulatorial IF NOT EXISTS
+    CHARACTER SET utf8
+    COLLATE utf8_general_ci;
+
+SET GLOBAL max_connections = 0;
+
+CREATE USER 'mysql'@'%' IDENTIFIED BY 'mysql';
+
+GRANT ALL PRIVILEGES ON *.* TO 'mysql'@'%' WITH GRANT OPTION;
+
+FLUSH PRIVILEGES;

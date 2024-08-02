@@ -1,0 +1,45 @@
+networks:
+  mysqlnet:
+    driver: bridge
+
+services:
+  mysql:
+    image: mysql:8.0.36
+    container_name: mysqldb
+    env_file: .env
+    environment:
+      - MYSQL_ROOT_USER=root
+      - MYSQL_ROOT_PASSWORD=root
+    command: 
+      - 'mysqld'
+      - '--local-infile=1'
+    networks:
+      - mysqlnet
+    ports:  
+      - "3306:3306"
+    volumes:
+      - ./database/data:/var/lib/mysql
+      - ./database/create-db.sql:/docker-entrypoint-initdb.d/create-db.sql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+    restart: always
+  dbc-sql:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dbfmysql:latest
+    env_file: .env
+    networks:
+      - mysqlnet
+    ports:
+      - "5000:5000"
+    container_name: dbc-sql
+    volumes:
+      - ./dbc:/app/dbc
+    depends_on:
+      - mysql
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
